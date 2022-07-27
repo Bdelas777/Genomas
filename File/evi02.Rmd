@@ -1,0 +1,246 @@
+---
+title: "evi02"
+author: "Bernardo de la Sierra Rabago y Luis Fernando Pérez Robles"
+date: "3/5/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# 1. Diseña un análisis filogenético del virus SARS-CoV-2, en donde incluyas de 8 a 10 genomas virales.
+
+## Instalación de paquetes y llamado a librerias
+```{r}
+# install.packages("seqinr") Ya la tengo instalda por eso se comentó
+library("seqinr")
+library("ggplot")
+library("ape")
+```
+## Posicionamiento en el directorio de trabajo
+```{r}
+A=getwd()
+A
+setwd("/Users/")
+setwd(A)
+```
+## Obtén las secuencias de 8 a 10 variantes de SARS-CoV-2 desde el NCBI (Enlaces a un sitio externo.) o el buscador de virus del NCBI
+
+```{r}
+Mex1 <- read.fasta("SARSCOVMex1.fasta")
+Mex2 <- read.fasta("SARSCOVMex2.fasta")
+Mex3 <- read.fasta("SARSCOVMex3.fasta")
+Usa1 <- read.fasta("SARSCOVUsa1.fasta")
+Usa2 <- read.fasta("SARSCOVUsa2.fasta")
+Usa3 <- read.fasta("SARSCOVUsa3.fasta")
+Can1 <- read.fasta("SARSCOVCan1.fasta")
+Can2 <- read.fasta("SARSCOVCan2.fasta")
+Can3 <- read.fasta("SARSCOVCan3.fasta")
+```
+
+# 2. Calcula la longitud y el contenido GC de las secuencias que incluyes en tu análisis. Crea una gráfica que te permita visualizar y comparar la longitud de los genomas analizados y otra que te permita ver el contenido de GC. Muestra el código empleado para obtenerlo e incluye las gráficas que obtuviste.
+
+## Calculo de longitud y contenido de GC
+```{r}
+size <- function(dna){ # funcion que calcula el tamaño de la secuencia
+  print("Número de bases: ")
+  return (length(dna))
+}
+
+# Este código calcula el porcentaje GC en la secuencia
+cuenta_GC<- function(dna){ # funcion que calcula el porcentaje de GC y 
+  #Contadores 
+  g <- 0 
+  c <- 0
+  # Bucle de repetición y checa cuantas veces salen las letras
+  for( i in 1:length(dna)){
+     if(dna[i] == "g")
+      g <- g + 1
+     else if(dna[i] == "c")
+      c <- c+1
+  }
+  # Impresión de la información
+  print("Porcentaje de Citosina: ")
+  print((c/length(dna))*100)
+  print("Porcentaje de Guanina: ")
+  print((g/length(dna))*100)
+  print("Porcentaje de GC: ")
+  print((c/length(dna))*100+(g/length(dna))*100)
+}
+
+complementaria <- function(dna){ # Funcion que crea la hebra complementaria cambiando las letras
+  cadena <- c()# Vector vacío que guarda la nueva hebra
+  # Ciclo de repetición donde se cambian las letras
+  for( i in 1:length(dna)){
+    if(dna[i] == "a")
+      cadena[i] <- "t"
+    else if(dna[i] == "t")
+      cadena[i] <- "a"
+    if(dna[i] == "c")
+      cadena[i] <- "g"
+    else if(dna[i] == "g")
+      cadena[i] <- "c"
+  }
+  print("La secuencia complementaria es: ")
+  return (cadena) 
+}
+
+print("Información de Sars covid 2 en México de Oaxaca");
+size(Mex1[[1]])
+cuenta_GC(Mex1[[1]])
+head(complementaria(Mex1[[1]]))
+print("Información de Sars covid 2 en México de Ciudad de México");
+size(Mex2[[1]])
+cuenta_GC(Mex2[[1]])
+head(complementaria(Mex2[[1]]))
+print("Información de Sars covid 2 en México de Baja California");
+size(Mex3[[1]])
+cuenta_GC(Mex3[[1]])
+head(complementaria(Mex3[[1]]))
+print("Información de Sars covid 2 en Estados Unidos de Delaware");
+size(Usa1[[1]])
+cuenta_GC(Usa1[[1]])
+head(complementaria(Usa1[[1]]))
+print("Información de Sars covid 2 en Estados Unidos de Florida");
+size(Usa2[[1]])
+cuenta_GC(Usa2[[1]])
+head(complementaria(Usa2[[1]]))
+print("Información de Sars covid 2 en Estados Unidos de Washington");
+size(Usa3[[1]])
+cuenta_GC(Usa3[[1]])
+head(complementaria(Usa3[[1]]))
+print("Información de Sars covid 2 en Canada de Ontario");
+size(Can1[[1]])
+cuenta_GC(Can1[[1]])
+head(complementaria(Can1[[1]]))
+print("Información de Sars covid 2 en Canada de Alberta");
+size(Can2[[1]])
+cuenta_GC(Can2[[1]])
+head(complementaria(Can2[[1]]))
+print("Información de Sars covid 2 en Canada de British Columbia");
+size(Can3[[1]])
+cuenta_GC(Can3[[1]])
+head(complementaria(Can3[[1]]))
+```
+
+## Creación de la tabla para poder visualizar los gráficos
+
+```{r}
+# install.packages("tidyverse") aca se comenta porque ya instale el paquete 
+tabla_ev01<- data.frame(Paises= 1:9,Longitud = 1:9, Contenido_GC = 1:9);
+rownames(tabla_ev01) <- c("1","2","3","4","5","6","7","8","9")
+tabla_ev01[1,1 ] <- "Oaxaca de México"
+tabla_ev01[2,1] <- "Ciudad de México de México"
+tabla_ev01[3,1 ] <- "Baja California de México"
+tabla_ev01[4,1] <- "Delaware de Estados Unidos"
+tabla_ev01[5,1 ] <- "Florida de Estados Unidos"
+tabla_ev01[6,1 ] <- "Washington de Estados Unidos"
+tabla_ev01[7,1 ] <- "Ontario de Canada"
+tabla_ev01[8,1 ] <- "Alberta de Canada"
+tabla_ev01[9,1 ] <- "British Columbia de Canada"
+
+tabla_ev01[1,2 ] <- length(Mex1[[1]])
+tabla_ev01[2,2] <-  length(Mex2[[1]])
+tabla_ev01[3,2 ] <- length(Mex3[[1]])
+tabla_ev01[4,2] <- length(Usa1[[1]])
+tabla_ev01[5,2 ] <- length(Usa2[[1]])
+tabla_ev01[6,2 ] <- length(Usa3[[1]])
+tabla_ev01[7,2 ] <- length(Can1[[1]])
+tabla_ev01[8,2 ] <- length(Can2[[1]])
+tabla_ev01[9,2 ] <- length(Can3[[1]])
+
+tabla_ev01[1,3 ] <- GC(Mex1[[1]])
+tabla_ev01[2,3] <-  GC(Mex2[[1]])
+tabla_ev01[3,3 ] <- GC(Mex3[[1]])
+tabla_ev01[4,3] <- GC(Usa1[[1]])
+tabla_ev01[5,3 ] <- GC(Usa2[[1]])
+tabla_ev01[6,3 ] <- GC(Usa3[[1]])
+tabla_ev01[7,3 ] <- GC(Can1[[1]])
+tabla_ev01[8,3 ] <- GC(Can2[[1]])
+tabla_ev01[9,3 ] <- GC(Can3[[1]])
+
+tabla_ev01
+```
+
+
+## Creación de graficas de longitud y GC
+
+```{r}
+# Graficamos  el contenido de Guanina Citosina y la Longitud
+library(ggplot2)
+# Graficamos  el contenido de Guanina Citosina y la Longitud
+plot_tabla_ev01_GC <-ggplot(tabla_ev01, aes(x=Paises, y=Contenido_GC, fill=Paises))+geom_bar(stat = "identity")
+plot_tabla_ev01_GC
+plot_tabla_ev01_length <-ggplot(tabla_ev01, aes(x=Paises, y=Longitud, fill=Paises))+geom_bar(stat = "identity")
+plot_tabla_ev01_length
+```
+# 3. Crea una gráfica en donde se observe el número de bases (A, G, C y T) de ADN que componen a los genomas virales utilizados en tu análisis. Muestra el código empleado para obtenerlo y la imagen de las gráficas obtenidas.
+```{r}
+count_Mex1 <- as.data.frame(count(Mex1[[1]],1))
+count_Mex2 <- as.data.frame(count(Mex2[[1]],1))
+count_Mex3 <- as.data.frame(count(Mex3[[1]],1))
+count_Usa1 <- as.data.frame(count(Usa1[[1]],1))
+count_Usa2 <- as.data.frame(count(Usa2[[1]],1))
+count_Usa3 <- as.data.frame(count(Usa3[[1]],1))
+count_Can1 <- as.data.frame(count(Can1[[1]],1))
+count_Can2 <- as.data.frame(count(Can2[[1]],1))
+count_Can3 <- as.data.frame(count(Can3[[1]],1))
+
+plot_count_Mex1 <- ggplot(count_Mex1, aes(x=Var1,y=Freq,fill=Var1))+geom_bar(stat = "identity")
+plot_count_Mex2 <- ggplot(count_Mex2, aes(x=Var1,y=Freq,fill=Var1))+geom_bar(stat = "identity")
+plot_count_Mex3 <- ggplot(count_Mex3, aes(x=Var1,y=Freq,fill=Var1))+geom_bar(stat = "identity")
+plot_count_Usa1 <- ggplot(count_Usa1, aes(x=Var1,y=Freq,fill=Var1))+geom_bar(stat = "identity")
+plot_count_Usa2 <- ggplot(count_Usa2, aes(x=Var1,y=Freq,fill=Var1))+geom_bar(stat = "identity")
+plot_count_Usa3 <- ggplot(count_Usa3, aes(x=Var1,y=Freq,fill=Var1))+geom_bar(stat = "identity")
+plot_count_Can1 <- ggplot(count_Can1, aes(x=Var1,y=Freq,fill=Var1))+geom_bar(stat = "identity")
+plot_count_Can2 <- ggplot(count_Can2, aes(x=Var1,y=Freq,fill=Var1))+geom_bar(stat = "identity")
+plot_count_Can3 <- ggplot(count_Can3, aes(x=Var1,y=Freq,fill=Var1))+geom_bar(stat = "identity")
+
+library(gridExtra)
+grid.arrange(plot_count_Mex1,plot_count_Mex2,plot_count_Mex3,plot_count_Usa1,plot_count_Usa2,plot_count_Usa3,plot_count_Can1,plot_count_Can2,plot_count_Can3,ncol=3)
+```
+
+# 4. Obtén las secuencias de los genomas de los virus elegidos, según la investigación que hayas decidido realizar, con la función read.GenBank. Muestra el código empleado para obtenerlo.
+
+```{r}
+# Aquí obtenemos los genomas virales 
+# Generamos un vector con los números de accesión de nuestros genomas virales de interés
+corona_virus <- c("OL790194.1","OK435439.1","MZ363983.1","MZ472103.1","OK439973.1","MT461607.1","ON112487.1","OM366050.1","MW309426.1")
+# Recuperamos las secuencias y los datos de los genomas con la funcion read.GenBank
+secuencia_de_virus <- read.GenBank(corona_virus)
+```
+
+# 5. Realiza el alineamiento de los genomas virales y visualiza el resultado de tu alineamiento en tu navegador. Muestra el código empleado para realizar lo anterior e incluye dos imágenes con el resultado del alineamiento, una de los primeros 150 nucleótidos y otra de los nucleótidos 500 al 650.
+
+```{r}
+# Concentramos en un archivo las secuencias del genoma
+write.dna(secuencia_de_virus, file="coronavirus_seqs.fasta", format = "fasta")
+# Carga las secuencias concentradas en el archivo
+virus_seq_not_align <- readDNAStringSet("coronavirus_seqs.fasta", format="fasta")
+# Orientamos los nucleotidos
+virus_seq_not_align <- OrientNucleotides(virus_seq_not_align)
+# Realizamos el alineamiento y visualizamos eel resultado en internet
+virus_seq_align <- AlignSeqs(virus_seq_not_align)
+BrowseSeqs(virus_seq_align)
+```
+
+# 6. Genera una matriz de distancia a partir de los genomas alineados. Crea una tabla en escala de grises en la que observes de manera visual el resultado de la matriz de distancia e inclúyela en tu reporte. Muestra el código empleado para obtener lo anterior e incluye la tabla que obtuviste.
+
+```{r}
+writeXStringSet(virus_seq_align, file="coronavirus_seq_align.fasta")
+
+virus_aligned <- read.alignment("coronavirus_seq_align.fasta", format="fasta")
+matriz_distancia <- dist.alignment(virus_aligned, matrix = "similarity")
+matriz_distancia
+
+temp <- as.data.frame(as.matrix(matriz_distancia)) 
+temp
+
+table.paint(temp, cleg=0, clabel.row=.5, clabel.col=.5) + scale_color_viridis()
+```
+# 7. Construye un árbol filogenético a partir de la matriz de distancia obtenida e incluye en el árbol los números de accesión de los genomas utilizados, sus nombres o cualquier otra leyenda que te permita indicar la ubicación de ellos en el árbol.
+```{r}
+virus_tree <- nj(matriz_distancia)
+virus_tree <- ladderize(virus_tree)
+plot(virus_tree)
+```
